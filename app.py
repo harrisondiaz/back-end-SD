@@ -9,7 +9,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 cert_path = os.path.join(BASE_DIR, "DigiCertGlobalRootCA.crt.pem")
 
 #conexion con Azure
-conexion = peewee.MySQLDatabase(user="Diego", password="Uptc1234", host="mysqlconexion.mysql.database.azure.com", port=3306, database="bd-mysql-uptc", ssl_ca=cert_path, ssl_disabled=False)
+conexion = peewee.MySQLDatabase(user="root", password="2zN3Oqnpi7ua2y9ewkeJ", host="containers-us-west-34.railway.app", port=7210, database="railway", ssl_ca=cert_path, ssl_disabled=False)
 
 
 class TipoDocumento(peewee.Model):
