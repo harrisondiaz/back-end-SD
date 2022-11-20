@@ -233,7 +233,7 @@ def inscripcion():
 @app.route("/inscripcion/listar")
 def listarInscripciones():
 
-    inscripciones = Inscripcion.select(Inscripcion, Materia, Estudiante).join(Estudiante, on=(Estudiante.cod_estudiante == Inscripcion.id_estudiante), attr='est').switch(Inscripcion).join(Materia, on=(Materia.cod_materia == Inscripcion.id_materia), attr='mat')
+    inscripciones = Inscripcion.select(Inscripcion, Materia, Estudiante).join(Estudiante, on=(Estudiante.id_estudiante == Inscripcion.id_estudiante), attr='est').switch(Inscripcion).join(Materia, on=(Materia.cod_materia == Inscripcion.id_materia), attr='mat')
     str = [{'id_estudiante':inscripcion.id_estudiante,'nombre_estudiante': inscripcion.est.nombre_estudiante,'id_materia':inscripcion.id_materia,'nombre_materia' : inscripcion.mat.nombre_materia,'fecha_inscripcion' : inscripcion.fecha_inscripcion} for inscripcion in inscripciones]
     return jsonify(str)
 @cross_origin
