@@ -210,6 +210,69 @@ def eliminarEstudiante(codigo):
 
     return jsonify({'mensaje': "Estudiante eliminado"})
 
+class Inscripcion(peewee.Model):
+    id_estudiante =  peewee.PrimaryKeyField(11)
+    id_materia = peewee.IntegerField(11)
+    fecha_inscripcion = peewee.DateField()
+
+    class Meta:
+        database = conexion
+        db_table = "Inscripcion"
+
+
+
+
+# Inscripciones
+@cross_origin
+@app.route("/inscripcion")
+def inscripcion():
+    return jsonify({'mensaje' : "Usuario logueado exitosamente!"})
+
+
+@cross_origin
+@app.route("/inscripcion/listar")
+def listarInscripciones():
+
+    inscripciones = Inscripcion.select(Inscripcion, Materia, Estudiante).join(Estudiante, on=(Estudiante.cod_estudiante == Inscripcion.id_estudiante), attr='est').switch(Inscripcion).join(Materia, on=(Materia.cod_materia == Inscripcion.id_materia), attr='mat')
+    str = [{'id_estudiante':inscripcion.id_estudiante,'nombre_estudiante': inscripcion.est.nombre_estudiante,'id_materia':inscripcion.id_materia,'nombre_materia' : inscripcion.mat.nombre_materia,'fecha_inscripcion' : inscripcion.fecha_inscripcion} for inscripcion in inscripciones]
+    return jsonify(str)
+@cross_origin
+@app.route("/inscripcion/registrar", methods=["POST"])
+def registrarInscripcion():
+
+    id_est, id_mat, fech_ins = getInfoInscription()
+
+    Inscripcion.create(id_estudiante = id_est, id_materia = id_mat, fecha_inscripcion = fech_ins)
+
+    return jsonify({'mensaje' : "Inscripcion registrada"})
+
+def getInfoInscription():
+    id_est = request.json['id_estudiante']
+    id_mat = request.json['id_materia']
+    fech_ins = request.json['fecha_inscripcion']
+    return id_est,id_mat,fech_ins
+@cross_origin
+@app.route('/inscripcion/eliminar/<codigo>', methods=["DELETE"])
+def eliminarInscripcionE(codigo):
+
+    Inscripcion.delete().where(Inscripcion.id_estudiante == codigo).execute()
+
+    return jsonify({'mensaje' : "Inscripcion del estudiante a todas las materias eliminada"})
+@cross_origin
+@app.route('/inscripcion/eliminar/materia/<codigo>', methods=["DELETE"])
+def eliminarInscripcionM(codigo):
+
+    Inscripcion.delete().where(Inscripcion.id_materia == codigo).execute()
+
+    return jsonify({'mensaje' : "Materia eliminada de todas las inscripciones"})
+@cross_origin
+@app.route('/inscripcion/eliminar/<codigo>/<codigo2>', methods=["DELETE"])
+def eliminarInscripcionEM(codigo,codigo2):
+
+    Inscripcion.delete().where(Inscripcion.id_estudiante == codigo and Inscripcion.id_materia == codigo2).execute()
+
+    return jsonify({'mensaje' : "Una Inscripcion eliminada"})
+
 
 if __name__ == "__main__":
     app.run(debug=True,host="0.0.0.0")
