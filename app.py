@@ -11,7 +11,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 cert_path = os.path.join(BASE_DIR, "DigiCertGlobalRootCA.crt.pem")
 
 #conexion con Azure
-conexion = peewee.MySQLDatabase(user="root", password="2zN3Oqnpi7ua2y9ewkeJ", host="containers-us-west-34.railway.app", port=7210, database="railway", ssl_ca=cert_path, ssl_disabled=False)
+conexion = peewee.MySQLDatabase(user="root", password="2zN3Oqnpi7ua2y9ewkeJ", host="containers-us-west-34.railway.app", port=7210, database="railway")
 
 
 #orm
@@ -24,7 +24,7 @@ class Materia(peewee.Model):
 
     class Meta:
         database = conexion
-        db_table = "MATERIA"
+        db_table = "Materia"
 
 # Materias
 
@@ -77,12 +77,12 @@ def eliminarMateria(codigo):
 #orm usuarios
 class Usuario(peewee.Model):
     id_usuario = peewee.PrimaryKeyField()
-    nombre_usuario = peewee.CharField(40)
+    nombre_usuario = peewee.CharField(30)
     password = peewee.CharField(200)
 
     class Meta:
         database = conexion
-        db_table = "USUARIO"
+        db_table = "Usuario"
 
 
 @app.route("/registrar", methods=["POST"])
