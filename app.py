@@ -1,6 +1,7 @@
 import hashlib
 import peewee
 from distutils.log import debug
+from functools import  lru_cache
 from playhouse.shortcuts import model_to_dict
 from flask import Flask, jsonify, request, redirect
 from flask_cors import CORS,cross_origin
@@ -35,7 +36,7 @@ class Materia(peewee.Model):
 def materia():
     return jsonify({'mensaje' : "Usuario logueado exitosamente!"})
 
-
+@lru_cache
 @cross_origin
 @app.route("/materia/listar")
 def listarMaterias():
@@ -53,6 +54,7 @@ def registrarMateria():
 
     return jsonify({'mensaje' : "Materia registrada"})
 
+@lru_cache
 def getInfoAssignature():
 
     cod = request.json['cod_materia']
@@ -148,6 +150,7 @@ class Estudiante(peewee.Model):
 def estudiante():
     return jsonify({'mensaje': "Usuario logueado exitosamente!"})
 
+@lru_cache
 @cross_origin
 @app.route("/estudiante/listar")
 def listarEstudiantes():
@@ -228,7 +231,7 @@ class Inscripcion(peewee.Model):
 def inscripcion():
     return jsonify({'mensaje' : "Usuario logueado exitosamente!"})
 
-
+@lru_cache
 @cross_origin
 @app.route("/inscripcion/listar")
 def listarInscripciones():
