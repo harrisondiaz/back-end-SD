@@ -276,6 +276,5 @@ def eliminarInscripcionEM(codigo,codigo2):
 
     return jsonify({'mensaje' : "Una Inscripcion eliminada"})
 
-
 if __name__ == "__main__":
     app.run(debug=True, port=os.getenv("PORT", default=5000))
