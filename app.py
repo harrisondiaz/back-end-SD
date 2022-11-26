@@ -20,7 +20,7 @@ conexion = peewee.MySQLDatabase(user="root", password="2zN3Oqnpi7ua2y9ewkeJ", ho
 #orm
 class Materia(peewee.Model):
     id_materia = peewee.PrimaryKeyField()
-    cod_materia = peewee.IntegerField(3)
+    id_materia = peewee.IntegerField(3)
     nombre_materia = peewee.CharField(70)
     creditos = peewee.IntegerField(1)
     cupos = peewee.IntegerField(3)
