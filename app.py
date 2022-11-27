@@ -166,7 +166,7 @@ def listarEstudiantes():
 @cross_origin
 @app.route("/estudiante/registrar", methods=["POST"])
 def registrarEstudiante():
-    id_est = request.json['cod_estudiante']
+    id_est = request.json['id_estudiante']
     tipo_doc, nom_est, ape_est, foto, esta = getInfoStudient()
 
     Estudiante.create(cod_estudiante=id_est, tipo_documento=tipo_doc, nombre_estudiante=nom_est,
