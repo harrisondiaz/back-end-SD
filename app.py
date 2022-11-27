@@ -169,7 +169,7 @@ def registrarEstudiante():
     id_est = request.json['id_estudiante']
     tipo_doc, nom_est, ape_est, foto, esta = getInfoStudient()
 
-    Estudiante.create(cod_estudiante=id_est, tipo_documento=tipo_doc, nombre_estudiante=nom_est,
+    Estudiante.create(id_estudiante=id_est, tipo_documento=tipo_doc, nombre_estudiante=nom_est,
                       apellido_estudiante=ape_est, foto=foto, estado=esta)
 
     return jsonify({'mensaje': "Estudiante registrado"})
@@ -189,7 +189,7 @@ def actualizarEstudiante(codigo):
     tipo_doc, nom_est, ape_est, foto, esta = getInfoStudient()
 
     Estudiante.update(tipo_documento=tipo_doc, nombre_estudiante=nom_est, apellido_estudiante=ape_est, foto=foto,
-                      estado=esta).where(Estudiante.cod_estudiante == codigo).execute()
+                      estado=esta).where(Estudiante.id_estudiante == codigo).execute()
 
     return jsonify({'mensaje': "Estudiante actualizado"})
 
@@ -198,7 +198,7 @@ def actualizarEstudiante(codigo):
 def actualizarEstudianteE(codigo):
     esta = request.json['estado']
 
-    Estudiante.update(estado=esta).where(Estudiante.cod_estudiante == codigo).execute()
+    Estudiante.update(estado=esta).where(Estudiante.id_estudiante == codigo).execute()
 
     return jsonify({'mensaje': "Estado del Estudiante actualizado"})
 
@@ -206,9 +206,9 @@ def actualizarEstudianteE(codigo):
 @app.route('/estudiante/eliminar/<codigo>', methods=["DELETE"])
 def eliminarEstudiante(codigo):
     try:
-        Estudiante.delete().where(Estudiante.cod_estudiante == codigo).execute()
+        Estudiante.delete().where(Estudiante.id_estudiante == codigo).execute()
     except:
-        Estudiante.update(estado='E').where(Estudiante.cod_estudiante == codigo).execute()
+        Estudiante.update(estado='E').where(Estudiante.id_estudiante == codigo).execute()
 
     return jsonify({'mensaje': "Estudiante eliminado"})
 
