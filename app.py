@@ -56,7 +56,7 @@ def registrarMateria():
 @lru_cache
 def getInfoAssignature():
 
-    cod = request.json['cod_materia']
+    cod = request.json['id_materia']
     nom = request.json['nombre_materia']
     cre = request.json['creditos']
     cup = request.json['cupos']
@@ -68,14 +68,14 @@ def actualizarMateria(codigo):
     
     nom, cre, cup, status = getInfoAssignature()
 
-    Materia.update(nombre_materia = nom, creditos = cre, cupos = cup, estado_materia = status).where(Materia.cod_materia == codigo).execute()
+    Materia.update(nombre_materia = nom, creditos = cre, cupos = cup, estado_materia = status).where(Materia.id_materia == codigo).execute()
     
     return jsonify({'mensaje' : "Materia actualizado"})
 @cross_origin
 @app.route('/materia/eliminar/<codigo>', methods=["DELETE"])
 def eliminarMateria(codigo):
 
-    Materia.delete().where(Materia.cod_materia == codigo).execute()
+    Materia.delete().where(Materia.id_materia == codigo).execute()
 
     return jsonify({'mensaje' : "Materia eliminada"})
     
