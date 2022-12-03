@@ -41,7 +41,6 @@ def materia():
 def listarMaterias():
     items = Materia.select()
     items = [model_to_dict(item) for item in items]
-
     return jsonify(items)
 @cross_origin()
 @app.route("/materia/registrar", methods=["POST"])
@@ -62,14 +61,13 @@ def getInfoAssignature():
     cup = request.json['cupos']
     status = request.json['estado_materia']
     return cod,nom,cre,cup,status
-@cross_origin
+@cross_origin()
 @app.route('/materia/actualizar/<codigo>', methods=["PUT"])
 def actualizarMateria(codigo):
-    
-    nom, cre, cup, status = getInfoAssignature()
+    id_materia = request.json['id_materia']
+    cod,nom, cre, cup, status = getInfoAssignature()
 
-    Materia.update(nombre_materia = nom, creditos = cre, cupos = cup, estado_materia = status).where(Materia.id_materia == codigo).execute()
-    
+    Materia.update(id_materia=cod,nombre_materia = nom, creditos = cre, cupos = cup, estado_materia = status).where(Materia.cod_materia == codigo).execute()
     return jsonify({'mensaje' : "Materia actualizado"})
 @cross_origin
 @app.route('/materia/eliminar/<codigo>', methods=["DELETE"])
