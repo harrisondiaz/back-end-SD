@@ -35,9 +35,10 @@ class Materia(peewee.Model):
 def materia():
     return jsonify({'mensaje' : "Usuario logueado exitosamente!"})
 
-@lru_cache
+
 @cross_origin
 @app.route("/materia/listar")
+@lru_cache
 def listarMaterias():
     items = Materia.select()
     items = [model_to_dict(item) for item in items]
@@ -147,9 +148,10 @@ class Estudiante(peewee.Model):
 def estudiante():
     return jsonify({'mensaje': "Usuario logueado exitosamente!"})
 
-@lru_cache
+
 @cross_origin
 @app.route("/estudiante/listar")
+@lru_cache
 def listarEstudiantes():
     estudiantes = Estudiante.select(Estudiante, TipoDocumento).join(TipoDocumento, attr='tip', on=(
                 Estudiante.tipo_documento == TipoDocumento.id_tipo_doc)).execute()
@@ -228,9 +230,10 @@ class Inscripcion(peewee.Model):
 def inscripcion():
     return jsonify({'mensaje' : "Usuario logueado exitosamente!"})
 
-@lru_cache
+
 @cross_origin
 @app.route("/inscripcion/listar")
+@lru_cache
 def listarInscripciones():
 
     inscripciones = Inscripcion.select(Inscripcion, Materia, Estudiante).join(Estudiante, on=(Estudiante.id_estudiante == Inscripcion.id_estudiante), attr='est').switch(Inscripcion).join(Materia, on=(Materia.cod_materia == Inscripcion.id_materia), attr='mat')
