@@ -62,7 +62,7 @@ def registrarMateria():
 
 @lru_cache
 def getInfoAssignature():
-    cod = request.json['id_materia']
+    cod = request.json['cod_materia']
     nom = request.json['nombre_materia']
     cre = request.json['creditos']
     cup = request.json['cupos']
@@ -73,11 +73,11 @@ def getInfoAssignature():
 @cross_origin()
 @app.route('/materia/actualizar/<codigo>', methods=["PUT"])
 def actualizarMateria(codigo):
-    id_materia = request.json['id_materia']
+    cod_materia = request.json['cod_materia']
     cod, nom, cre, cup, status = getInfoAssignature()
 
-    Materia.update(id_materia=cod, nombre_materia=nom, creditos=cre, cupos=cup, estado_materia=status).where(
-        Materia.cod_materia == codigo).execute()
+    Materia.update(cod_materia=cod, nombre_materia=nom, creditos=cre, cupos=cup, estado_materia=status).where(
+        Materia.id_materia == codigo).execute()
     return jsonify({'mensaje': "Materia actualizado"})
 
 
