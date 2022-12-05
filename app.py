@@ -1,10 +1,10 @@
 import hashlib
 import peewee
 from distutils.log import debug
-from functools import  lru_cache
+from functools import lru_cache
 from playhouse.shortcuts import model_to_dict
 from flask import Flask, jsonify, request, redirect
-from flask_cors import CORS,cross_origin
+from flask_cors import CORS, cross_origin
 import os
 
 app = Flask(__name__)
@@ -13,10 +13,12 @@ CORS(app)
 app.secret_key = os.urandom(24)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 cert_path = os.path.join(BASE_DIR, "DigiCertGlobalRootCA.crt.pem")
-#conexion con Azure
-conexion = peewee.MySQLDatabase(user="root", password="2zN3Oqnpi7ua2y9ewkeJ", host="containers-us-west-34.railway.app", port=7210, database="railway")
+# conexion con Azure
+conexion = peewee.MySQLDatabase(user="root", password="2zN3Oqnpi7ua2y9ewkeJ", host="containers-us-west-34.railway.app",
+                                port=7210, database="railway")
 
-#orm
+
+# orm
 class Materia(peewee.Model):
     id_materia = peewee.PrimaryKeyField()
     cod_materia = peewee.IntegerField(3)
@@ -29,56 +31,65 @@ class Materia(peewee.Model):
         database = conexion
         db_table = "Materia"
 
+
 # Materias
 @cross_origin
 @app.route("/materia")
 def materia():
-    return jsonify({'mensaje' : "Usuario logueado exitosamente!"})
+    return jsonify({'mensaje': "Usuario logueado exitosamente!"})
 
 
+@lru_cache
 @cross_origin
 @app.route("/materia/listar")
-@lru_cache
 def listarMaterias():
     items = Materia.select()
     items = [model_to_dict(item) for item in items]
     return jsonify(items)
+
+
 @cross_origin()
 @app.route("/materia/registrar", methods=["POST"])
 def registrarMateria():
     id_materia = request.json['id_materia']
     cod, nom, cre, cup, status = getInfoAssignature()
 
-    Materia.create(id_materia = id_materia,cod_materia = cod, nombre_materia = nom, creditos = cre, cupos = cup, estado_materia = status)
+    Materia.create(id_materia=id_materia, cod_materia=cod, nombre_materia=nom, creditos=cre, cupos=cup,
+                   estado_materia=status)
 
-    return jsonify({'mensaje' : "Materia registrada"})
+    return jsonify({'mensaje': "Materia registrada"})
+
 
 @lru_cache
 def getInfoAssignature():
-
     cod = request.json['id_materia']
     nom = request.json['nombre_materia']
     cre = request.json['creditos']
     cup = request.json['cupos']
     status = request.json['estado_materia']
-    return cod,nom,cre,cup,status
+    return cod, nom, cre, cup, status
+
+
 @cross_origin()
 @app.route('/materia/actualizar/<codigo>', methods=["PUT"])
 def actualizarMateria(codigo):
     id_materia = request.json['id_materia']
-    cod,nom, cre, cup, status = getInfoAssignature()
+    cod, nom, cre, cup, status = getInfoAssignature()
 
-    Materia.update(id_materia=cod,nombre_materia = nom, creditos = cre, cupos = cup, estado_materia = status).where(Materia.cod_materia == codigo).execute()
-    return jsonify({'mensaje' : "Materia actualizado"})
+    Materia.update(id_materia=cod, nombre_materia=nom, creditos=cre, cupos=cup, estado_materia=status).where(
+        Materia.cod_materia == codigo).execute()
+    return jsonify({'mensaje': "Materia actualizado"})
+
+
 @cross_origin
 @app.route('/materia/eliminar/<codigo>', methods=["DELETE"])
 def eliminarMateria(codigo):
-
     Materia.delete().where(Materia.id_materia == codigo).execute()
 
-    return jsonify({'mensaje' : "Materia eliminada"})
-    
-#orm usuarios
+    return jsonify({'mensaje': "Materia eliminada"})
+
+
+# orm usuarios
 class Usuario(peewee.Model):
     id_usuario = peewee.PrimaryKeyField()
     nombre_usuario = peewee.CharField(30)
@@ -88,26 +99,28 @@ class Usuario(peewee.Model):
         database = conexion
         db_table = "Usuario"
 
+
 @cross_origin
 @app.route("/registrar", methods=["POST"])
 def registrarUsuario():
-
     id_usuario = request.json['id_usuario']
     nombre_usuario = request.json['nombre_usuario']
     password = request.json['password']
-    #encriptando
+    # encriptando
     enc = hashlib.sha256(password.encode())
     pass_enc = enc.hexdigest()
 
-    Usuario.create(id_usuario = id_usuario, nombre_usuario=nombre_usuario, password = pass_enc)
+    Usuario.create(id_usuario=id_usuario, nombre_usuario=nombre_usuario, password=pass_enc)
 
-    return jsonify({'mensaje' : "Usuario registrado"})
+    return jsonify({'mensaje': "Usuario registrado"})
+
+
 @cross_origin
 @app.route("/login", methods=["POST"])
 def loginUsuario():
     nombre_usuario = request.json['nombre_usuario']
     password = request.json['password']
-    #encriptando
+    # encriptando
     enc = hashlib.sha256(password.encode())
     pass_enc = enc.hexdigest()
 
@@ -116,7 +129,7 @@ def loginUsuario():
         Item = [model_to_dict(item) for item in user]
     except:
         user = ""
-    if(Item!=[]):
+    if (Item != []):
         return jsonify({'msg': "Usuario fue encontrado con exito"})
     else:
         return jsonify({'msg': "El usuario no existe "})
@@ -143,25 +156,26 @@ class Estudiante(peewee.Model):
         database = conexion
         db_table = "Estudiante"
 
+
 @cross_origin
 @app.route("/estudiante")
 def estudiante():
     return jsonify({'mensaje': "Usuario logueado exitosamente!"})
 
 
+@lru_cache
 @cross_origin
 @app.route("/estudiante/listar")
-@lru_cache
 def listarEstudiantes():
     estudiantes = Estudiante.select(Estudiante, TipoDocumento).join(TipoDocumento, attr='tip', on=(
-                Estudiante.tipo_documento == TipoDocumento.id_tipo_doc)).execute()
+            Estudiante.tipo_documento == TipoDocumento.id_tipo_doc)).execute()
 
     str = [{'id_estudiante': estudiante.id_estudiante, 'tipo_documento': estudiante.tip.nombre_tipo,
             'nombre_estudiante': estudiante.nombre_estudiante, 'apellido_estudiante': estudiante.apellido_estudiante,
             'foto': estudiante.foto, 'estado': estudiante.estado} for estudiante in estudiantes]
 
-
     return jsonify(str)
+
 
 @cross_origin
 @app.route("/estudiante/registrar", methods=["POST"])
@@ -183,6 +197,7 @@ def getInfoStudient():
     esta = request.json['estado']
     return tipo_doc, nom_est, ape_est, foto, esta
 
+
 @cross_origin
 @app.route('/estudiante/actualizar/<codigo>', methods=["PUT"])
 def actualizarEstudiante(codigo):
@@ -193,6 +208,7 @@ def actualizarEstudiante(codigo):
 
     return jsonify({'mensaje': "Estudiante actualizado"})
 
+
 @cross_origin
 @app.route('/estudiante/actualizar/estado/<codigo>', methods=["PATCH"])
 def actualizarEstudianteE(codigo):
@@ -201,6 +217,7 @@ def actualizarEstudianteE(codigo):
     Estudiante.update(estado=esta).where(Estudiante.id_estudiante == codigo).execute()
 
     return jsonify({'mensaje': "Estado del Estudiante actualizado"})
+
 
 @cross_origin
 @app.route('/estudiante/eliminar/<codigo>', methods=["DELETE"])
@@ -212,8 +229,9 @@ def eliminarEstudiante(codigo):
 
     return jsonify({'mensaje': "Estudiante eliminado"})
 
+
 class Inscripcion(peewee.Model):
-    id_estudiante =  peewee.PrimaryKeyField(11)
+    id_estudiante = peewee.PrimaryKeyField(11)
     id_materia = peewee.IntegerField(11)
     fecha_inscripcion = peewee.DateField()
 
@@ -222,59 +240,68 @@ class Inscripcion(peewee.Model):
         db_table = "Inscripcion"
 
 
-
-
 # Inscripciones
 @cross_origin
 @app.route("/inscripcion")
 def inscripcion():
-    return jsonify({'mensaje' : "Usuario logueado exitosamente!"})
+    return jsonify({'mensaje': "Usuario logueado exitosamente!"})
 
 
+@lru_cache
 @cross_origin
 @app.route("/inscripcion/listar")
-@lru_cache
 def listarInscripciones():
-
-    inscripciones = Inscripcion.select(Inscripcion, Materia, Estudiante).join(Estudiante, on=(Estudiante.id_estudiante == Inscripcion.id_estudiante), attr='est').switch(Inscripcion).join(Materia, on=(Materia.cod_materia == Inscripcion.id_materia), attr='mat')
-    str = [{'id_estudiante':inscripcion.id_estudiante,'nombre_estudiante': inscripcion.est.nombre_estudiante,'id_materia':inscripcion.id_materia,'nombre_materia' : inscripcion.mat.nombre_materia,'fecha_inscripcion' : inscripcion.fecha_inscripcion} for inscripcion in inscripciones]
+    inscripciones = Inscripcion.select(Inscripcion, Materia, Estudiante).join(Estudiante, on=(
+                Estudiante.id_estudiante == Inscripcion.id_estudiante), attr='est').switch(Inscripcion).join(Materia,
+                                                                                                             on=(
+                                                                                                                         Materia.cod_materia == Inscripcion.id_materia),
+                                                                                                             attr='mat')
+    str = [{'id_estudiante': inscripcion.id_estudiante, 'nombre_estudiante': inscripcion.est.nombre_estudiante,
+            'id_materia': inscripcion.id_materia, 'nombre_materia': inscripcion.mat.nombre_materia,
+            'fecha_inscripcion': inscripcion.fecha_inscripcion} for inscripcion in inscripciones]
     return jsonify(str)
+
+
 @cross_origin
 @app.route("/inscripcion/registrar", methods=["POST"])
 def registrarInscripcion():
-
     id_est, id_mat, fech_ins = getInfoInscription()
 
-    Inscripcion.create(id_estudiante = id_est, id_materia = id_mat, fecha_inscripcion = fech_ins)
+    Inscripcion.create(id_estudiante=id_est, id_materia=id_mat, fecha_inscripcion=fech_ins)
 
-    return jsonify({'mensaje' : "Inscripcion registrada"})
+    return jsonify({'mensaje': "Inscripcion registrada"})
+
 
 def getInfoInscription():
     id_est = request.json['id_estudiante']
     id_mat = request.json['id_materia']
     fech_ins = request.json['fecha_inscripcion']
-    return id_est,id_mat,fech_ins
+    return id_est, id_mat, fech_ins
+
+
 @cross_origin
 @app.route('/inscripcion/eliminar/<codigo>', methods=["DELETE"])
 def eliminarInscripcionE(codigo):
-
     Inscripcion.delete().where(Inscripcion.id_estudiante == codigo).execute()
 
-    return jsonify({'mensaje' : "Inscripcion del estudiante a todas las materias eliminada"})
+    return jsonify({'mensaje': "Inscripcion del estudiante a todas las materias eliminada"})
+
+
 @cross_origin
 @app.route('/inscripcion/eliminar/materia/<codigo>', methods=["DELETE"])
 def eliminarInscripcionM(codigo):
-
     Inscripcion.delete().where(Inscripcion.id_materia == codigo).execute()
 
-    return jsonify({'mensaje' : "Materia eliminada de todas las inscripciones"})
+    return jsonify({'mensaje': "Materia eliminada de todas las inscripciones"})
+
+
 @cross_origin
 @app.route('/inscripcion/eliminar/<codigo>/<codigo2>', methods=["DELETE"])
-def eliminarInscripcionEM(codigo,codigo2):
-
+def eliminarInscripcionEM(codigo, codigo2):
     Inscripcion.delete().where(Inscripcion.id_estudiante == codigo and Inscripcion.id_materia == codigo2).execute()
 
-    return jsonify({'mensaje' : "Una Inscripcion eliminada"})
+    return jsonify({'mensaje': "Una Inscripcion eliminada"})
+
 
 if __name__ == "__main__":
     app.run(debug=True, port=os.getenv("PORT", default=5000))
