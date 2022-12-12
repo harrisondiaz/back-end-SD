@@ -32,33 +32,6 @@ class Materia(peewee.Model):
         db_table = "Materia"
 
 
-# Materias
-@cross_origin
-@app.route("/materia")
-def materia():
-    return jsonify({'mensaje': "Usuario logueado exitosamente!"})
-
-
-@lru_cache
-@cross_origin
-@app.route("/materia/listar")
-def listarMaterias():
-    items = Materia.select()
-    items = [model_to_dict(item) for item in items]
-    return jsonify(items)
-
-
-@cross_origin()
-@app.route("/materia/registrar", methods=["POST"])
-def registrarMateria():
-    id_materia = request.json['id_materia']
-    cod, nom, cre, cup, status = getInfoAssignature()
-
-    Materia.create(id_materia=id_materia, cod_materia=cod, nombre_materia=nom, creditos=cre, cupos=cup,
-                   estado_materia=status)
-
-    return jsonify({'mensaje': "Materia registrada"})
-
 
 @lru_cache
 def getInfoAssignature():
@@ -69,70 +42,6 @@ def getInfoAssignature():
     status = request.json['estado_materia']
     return cod, nom, cre, cup, status
 
-
-@cross_origin()
-@app.route('/materia/actualizar/<codigo>', methods=["PUT"])
-def actualizarMateria(codigo):
-    cod_materia = request.json['cod_materia']
-    cod, nom, cre, cup, status = getInfoAssignature()
-
-    Materia.update(cod_materia=cod, nombre_materia=nom, creditos=cre, cupos=cup, estado_materia=status).where(
-        Materia.id_materia == codigo).execute()
-    return jsonify({'mensaje': "Materia actualizado"})
-
-
-@cross_origin
-@app.route('/materia/eliminar/<codigo>', methods=["DELETE"])
-def eliminarMateria(codigo):
-    Materia.delete().where(Materia.id_materia == codigo).execute()
-
-    return jsonify({'mensaje': "Materia eliminada"})
-
-
-# orm usuarios
-class Usuario(peewee.Model):
-    id_usuario = peewee.PrimaryKeyField()
-    nombre_usuario = peewee.CharField(30)
-    password = peewee.CharField(200)
-
-    class Meta:
-        database = conexion
-        db_table = "Usuario"
-
-
-@cross_origin
-@app.route("/registrar", methods=["POST"])
-def registrarUsuario():
-    id_usuario = request.json['id_usuario']
-    nombre_usuario = request.json['nombre_usuario']
-    password = request.json['password']
-    # encriptando
-    enc = hashlib.sha256(password.encode())
-    pass_enc = enc.hexdigest()
-
-    Usuario.create(id_usuario=id_usuario, nombre_usuario=nombre_usuario, password=pass_enc)
-
-    return jsonify({'mensaje': "Usuario registrado"})
-
-
-@cross_origin
-@app.route("/login", methods=["POST"])
-def loginUsuario():
-    nombre_usuario = request.json['nombre_usuario']
-    password = request.json['password']
-    # encriptando
-    enc = hashlib.sha256(password.encode())
-    pass_enc = enc.hexdigest()
-
-    try:
-        user = Usuario.select().where(Usuario.nombre_usuario == nombre_usuario and Usuario.password == pass_enc)
-        Item = [model_to_dict(item) for item in user]
-    except:
-        user = ""
-    if (Item != []):
-        return jsonify({'msg': "Usuario fue encontrado con exito"})
-    else:
-        return jsonify({'msg': "El usuario no existe "})
 
 
 class TipoDocumento(peewee.Model):
@@ -157,37 +66,6 @@ class Estudiante(peewee.Model):
         db_table = "Estudiante"
 
 
-@cross_origin
-@app.route("/estudiante")
-def estudiante():
-    return jsonify({'mensaje': "Usuario logueado exitosamente!"})
-
-
-@lru_cache
-@cross_origin
-@app.route("/estudiante/listar")
-def listarEstudiantes():
-    estudiantes = Estudiante.select(Estudiante, TipoDocumento).join(TipoDocumento, attr='tip', on=(
-            Estudiante.tipo_documento == TipoDocumento.id_tipo_doc)).execute()
-
-    str = [{'id_estudiante': estudiante.id_estudiante, 'tipo_documento': estudiante.tip.nombre_tipo,
-            'nombre_estudiante': estudiante.nombre_estudiante, 'apellido_estudiante': estudiante.apellido_estudiante,
-            'foto': estudiante.foto, 'estado': estudiante.estado} for estudiante in estudiantes]
-
-    return jsonify(str)
-
-
-@cross_origin
-@app.route("/estudiante/registrar", methods=["POST"])
-def registrarEstudiante():
-    id_est = request.json['id_estudiante']
-    tipo_doc, nom_est, ape_est, foto, esta = getInfoStudient()
-
-    Estudiante.create(id_estudiante=id_est, tipo_documento=tipo_doc, nombre_estudiante=nom_est,
-                      apellido_estudiante=ape_est, foto=foto, estado=esta)
-
-    return jsonify({'mensaje': "Estudiante registrado"})
-
 
 def getInfoStudient():
     tipo_doc = request.json['tipo_documento']
@@ -198,36 +76,6 @@ def getInfoStudient():
     return tipo_doc, nom_est, ape_est, foto, esta
 
 
-@cross_origin
-@app.route('/estudiante/actualizar/<codigo>', methods=["PUT"])
-def actualizarEstudiante(codigo):
-    tipo_doc, nom_est, ape_est, foto, esta = getInfoStudient()
-
-    Estudiante.update(tipo_documento=tipo_doc, nombre_estudiante=nom_est, apellido_estudiante=ape_est, foto=foto,
-                      estado=esta).where(Estudiante.id_estudiante == codigo).execute()
-
-    return jsonify({'mensaje': "Estudiante actualizado"})
-
-
-@cross_origin
-@app.route('/estudiante/actualizar/estado/<codigo>', methods=["PATCH"])
-def actualizarEstudianteE(codigo):
-    esta = request.json['estado']
-
-    Estudiante.update(estado=esta).where(Estudiante.id_estudiante == codigo).execute()
-
-    return jsonify({'mensaje': "Estado del Estudiante actualizado"})
-
-
-@cross_origin
-@app.route('/estudiante/eliminar/<codigo>', methods=["DELETE"])
-def eliminarEstudiante(codigo):
-    try:
-        Estudiante.delete().where(Estudiante.id_estudiante == codigo).execute()
-    except:
-        Estudiante.update(estado='E').where(Estudiante.id_estudiante == codigo).execute()
-
-    return jsonify({'mensaje': "Estudiante eliminado"})
 
 
 class Inscripcion(peewee.Model):
